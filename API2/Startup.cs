@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Persistence;
+using MediatR;
+using Application.Activities;
+using Application.Core;
 
 namespace API2
 {
@@ -41,6 +44,17 @@ namespace API2
               {
                   opt.UseSqlite(_config.GetConnectionString("DefaultConnection"));
               });
+
+            services.AddCors(opt => {
+                opt.AddPolicy("CorsPolicy", Policy =>
+                {
+                    Policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
+                });
+            });
+
+            services.AddMediatR(typeof(List.Handler).Assembly);
+            services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,6 +68,8 @@ namespace API2
             }
 
             app.UseRouting();
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthorization();
 
